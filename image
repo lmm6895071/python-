@@ -1,0 +1,41 @@
+# coding:utf-8
+import sys
+import os
+import requests
+import json
+import re
+
+reload(sys)
+sys.setdefaultencoding("utf8")
+def gethtml():
+	header={
+	"Host": "www.zhihu.com",
+	"User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0",
+	"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+	"Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+	"Accept-Encoding": "gzip, deflate, br",
+ 	"Connection": "keep-alive",
+	"Upgrade-Insecure-Requests":"1",
+	}
+	url="https://www.zhihu.com/question/21180335"
+	html=requests.get(url,headers=header)
+	print html.encoding,html.status_code
+	pattern="data-original=\"(.*?)\""
+	results=re.findall(pattern,html.text,re.M)
+	results=list(set(results))
+	lens=len(results)
+	print lens
+	index=0;
+	for item in results:
+		tail=item.split(".")
+		name="result\\image%d.%s"%(index,tail[-1])
+		index=index+1
+		print name
+		fs=open(name,'wb')
+		im=requests.get(item,stream=True)
+		fs.write(im.content)
+		fs.flush()
+		fs.close()
+	
+if __name__ == '__main__':
+	gethtml()
