@@ -1,0 +1,129 @@
+# encoding: utf-8
+import requests
+import sys
+import re
+import json
+import threading
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
+reload(sys)
+sys.setdefaultencoding("utf8")
+
+def baiduPicture(fname):
+	fs={'image': ("test.jpg",open(fname, 'rb'),'image/*')}
+	url="http://image.baidu.com/pictureup/uploadshitu"
+	headers={
+        "Host": "image.baidu.com",
+        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate",
+        "Referer": "http://image.baidu.com/",
+        "Cookie": "BAIDUID=90BB611356A87322CCA177509D9D7EDD:FG=1; BIDUPSID=4CAB1D532A7A96005C7916112DBF52DD; PSTM=1471926698; tip_show_limit=5; Hm_lvt_9a586c8b1ad06e7e39bc0e9338305573=1482715728; BDRCVFR[X_XKQks0S63]=mk3SLVN4HKm; userFrom=www.6789.com; firstShowTip=1",
+        "Connection": "Close",
+        "Upgrade-Insecure-Requests": "1"
+        }
+	s=requests.session();
+	response = s.post(url, files=fs,headers=headers)#,allow_redirects=False)
+	resheader= response.headers
+	print "baiduurl=",response.url
+	'''for item in response.history:
+		print "\nhistory:" ,item.status_code, item.url,item.headers['Location']'''
+	mutex.acquire()
+	data_list["baiduurl"]=(response.url)
+	mutex.release() 
+def sougouPicture(fname):
+    fs={'upload': ("1.png",open(fname, 'rb'),'image/*')}
+    url="http://pic.sogou.com/ris_upload"
+    headers={
+        "Host": "pic.sogou.com",
+        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate",
+        "Referer": "http://pic.sogou.com",
+        "Cookie": "SNUID=EAF74A37A9ACED376F706ED4A9150FEB; IPLOC=CN1100; SUID=425FE29F2E08990A0000000057DF4D52; SUV=002441129FE25F4257DF4D53619EE767; CXID=D8E8F55CC175942826B22F912E806305; pgv_pvi=1814855680; ld=tWXNvZllll2YRQejlllllVP56MGlllllXMJKykllll9lllllRylll5@@@@@@@@@@; sct=2; ABTEST=0|1482823635|v1; JSESSIONID=aaarxeOo6hFLlgGlrl-Kv",
+        "Connection": "Close",
+        "Upgrade-Insecure-Requests": "1"
+        }
+    s=requests.session();
+    response = s.post(url, files=fs,headers=headers)#,allow_redirects=False)
+    resheader= response.headers
+    print "\nsougouurl=",response.url
+    '''for item in response.history:
+        print "\nhistory:" ,item.status_code, item.url,item.headers['Location']'''
+    mutex.acquire()
+    data_list["sougouurl"]=(response.url)
+    mutex.release() 
+
+def m360Picture(fname):
+    fs={'upload': ("1.jpg",open(fname ,'rb'),'image/*')}
+    url="http://st.so.com/stu"
+    headers={
+        "Host": "st.so.com",
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate",
+        "Referer": "http://image.so.com/",
+        "Cookie": "__guid=93469023.2096732206772638200.1482827555680.457;__huid=10hV37D0l7PnPk1xKA1IHK%2FrUe%2FAl%2Bpzg8Ipg%2BXOYZyyQ%3D; count=6;PHPSESSID=s8tbrtd33pccqfcc539qa0s687",
+        "Connection": "Close",#"keep-alive"
+        "Upgrade-Insecure-Requests": "1"
+        }
+    s=requests.session();
+    response = s.post(url, files=fs,headers=headers)#,allow_redirects=False)
+    resheader= response.headers
+    print "\nm360url=",response.url,"\n"
+    '''for item in response.history:
+        print "\nhistory:" ,item.status_code, item.url,item.headers['Location']'''
+    mutex.acquire()
+    data_list["m360url"]=(response.url)
+    mutex.release() 
+def chinaSoPicture(fs):
+    fs={'file': ("1.jpg",open(fname, 'rb'),'image/*')}
+    url="http://shitu.chinaso.com/index.php/Home/Classifiy/upload"
+    headers={
+        "Host": "shitu.chinaso.com",
+        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Accept-Encoding": "gzip, deflate",
+        "Referer": "http://shitu.chinaso.com/",
+        "Cookie": "uid=CgqAiVg3vbW6hkRrA31SAg==; wdcid=1ef784cf3d584c67; CITY_CODE=110000%2C110100%2C110000; wdlast=1483512967; Hm_lvt_5bde3c50be13a24c15c1580eda5b0b11=1482887528,1483512867; PHPSESSID=rc6dfi28g1s386l8s89l0keb37; Hm_lpvt_5bde3c50be13a24c15c1580eda5b0b11=1483512867",
+        "Connection": "Close",
+        "Upgrade-Insecure-Requests": "1"
+        }
+    s=requests.session();
+    response = s.post(url, files=fs,headers=headers,allow_redirects=False)
+    resheader= response.headers
+    print "\nchinaSourl=",resheader["location"],"\n"
+    '''for item in response.history:
+        print "\nhistory:" ,item.status_code, item.url,item.headers['Location']'''
+    mutex.acquire()
+    data_list["chinaSourl"]="http:/shitu.chinaso.com"+resheader["location"]
+    mutex.release() 
+def start(fs):
+    global data_list,mutex
+    mutex=threading.Lock()
+    threads=[]
+    data_list={}
+    threads.append(threading.Thread(target=sougouPicture, args=(fname,)))
+    threads.append(threading.Thread(target=m360Picture,args=(fname,)))
+    threads.append(threading.Thread(target=baiduPicture,args=(fname,)))
+    threads.append(threading.Thread(target=chinaSoPicture,args=(fname,)))
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    print data_list
+    return  data_list
+    
+    
+if __name__ == "__main__":
+    fname="1.png"
+    start(fname)
+    '''chinaSoPicture(fname)
+    sougouPicture(fname)
+    m360Picture(fname)
+    baiduPicture(fname)
+    #print data_list'''
